@@ -1,0 +1,324 @@
+{
+  "name": "full",
+  "description": "Comprehensive evaluation suite covering core, memory, and render reliability.",
+  "cases": [
+    {
+      "id": "object_create",
+      "description": "Object creation + deterministic verification.",
+      "turns": [
+        {
+          "prompt": "Create a cube named EvalCube_{run_id} at ({ox}, {oy}, 1).",
+          "expect": {
+            "status": "success",
+            "verification_complete": true,
+            "required_tools": [
+              "create_cube"
+            ],
+            "required_goal_tools": [
+              "create_cube"
+            ],
+            "required_discovered_tools": [
+              "create_cube"
+            ],
+            "forbidden_tools": [
+              "delete_object",
+              "render_scene"
+            ],
+            "max_tool_repeats": {
+              "create_cube": 1
+            },
+            "max_render_executions": 0,
+            "max_llm_calls": 4,
+            "max_total_seconds": 90
+          }
+        }
+      ]
+    },
+    {
+      "id": "mesh_direction_and_semantics",
+      "description": "Inset + upward translation + taper, including controller direction normalization.",
+      "turns": [
+        {
+          "prompt": "Create a cube named EvalTower_{run_id} at ({ox}, {oy}, 6). Inset its top face by 0.12, move the top face upward by 1.5, and taper the top to 0.7 on X and 0.7 on Y.",
+          "expect": {
+            "status": "success",
+            "verification_complete": true,
+            "required_tools": [
+              "create_cube",
+              "inset_top_face",
+              "translate_top_face",
+              "scale_top_face"
+            ],
+            "required_goal_tools": [
+              "create_cube",
+              "inset_top_face",
+              "translate_top_face",
+              "scale_top_face"
+            ],
+            "required_discovered_tools": [
+              "create_cube",
+              "inset_top_face",
+              "translate_top_face",
+              "scale_top_face"
+            ],
+            "required_events": [
+              "semantic_arguments_normalized"
+            ],
+            "tool_argument_equals": [
+              {
+                "tool": "translate_top_face",
+                "path": "z_offset",
+                "value": 1.5
+              },
+              {
+                "tool": "translate_top_face",
+                "path": "y_offset",
+                "value": 0.0
+              },
+              {
+                "tool": "scale_top_face",
+                "path": "x_factor",
+                "value": 0.7
+              }
+            ],
+            "max_tool_repeats": {
+              "inset_top_face": 1,
+              "translate_top_face": 1,
+              "scale_top_face": 1
+            },
+            "max_render_executions": 0,
+            "max_llm_calls": 8,
+            "max_total_seconds": 180
+          }
+        }
+      ]
+    },
+    {
+      "id": "read_only_materials",
+      "description": "Read-only discovery must not expose mutators.",
+      "turns": [
+        {
+          "prompt": "What materials are currently in the scene?",
+          "expect": {
+            "status": "success",
+            "verification_complete": true,
+            "required_tools": [
+              "get_materials"
+            ],
+            "required_discovered_tools": [
+              "get_materials"
+            ],
+            "forbidden_discovered_tools": [
+              "create_material",
+              "set_material_color",
+              "assign_material"
+            ],
+            "forbidden_tools": [
+              "create_material",
+              "set_material_color",
+              "assign_material",
+              "render_scene"
+            ],
+            "allowed_discovered_tools": [
+              "get_materials"
+            ],
+            "max_render_executions": 0,
+            "max_llm_calls": 3,
+            "max_total_seconds": 60
+          }
+        }
+      ]
+    },
+    {
+      "id": "object_pronoun_color",
+      "description": "Create an object, then resolve 'it' deterministically and assign a dedicated material.",
+      "turns": [
+        {
+          "prompt": "Create a UV sphere named EvalMemorySphere_{run_id} at ({ox}, {oy}, 12).",
+          "expect": {
+            "required_tools": [
+              "create_uv_sphere"
+            ],
+            "required_goal_tools": [
+              "create_uv_sphere"
+            ],
+            "max_tool_repeats": {
+              "create_uv_sphere": 1
+            },
+            "max_render_executions": 0
+          }
+        },
+        {
+          "prompt": "Make it blue.",
+          "expect": {
+            "required_tools": [
+              "create_material",
+              "assign_material"
+            ],
+            "forbidden_tools": [
+              "set_material_color"
+            ],
+            "required_discovered_tools": [
+              "create_material",
+              "assign_material"
+            ],
+            "forbidden_discovered_tools": [
+              "set_material_color"
+            ],
+            "required_events": [
+              "reference_resolved"
+            ],
+            "reference_target": {
+              "type": "object",
+              "name": "EvalMemorySphere_{run_id}"
+            },
+            "tool_argument_equals": [
+              {
+                "tool": "assign_material",
+                "path": "object_name",
+                "value": "EvalMemorySphere_{run_id}"
+              }
+            ],
+            "max_tool_repeats": {
+              "create_material": 1,
+              "assign_material": 1
+            },
+            "max_render_executions": 0,
+            "max_llm_calls": 6,
+            "max_total_seconds": 120,
+            "forbidden_final_answer_terms": [
+              "smooth"
+            ]
+          }
+        },
+        {
+          "prompt": "Shade it smooth.",
+          "expect": {
+            "required_tools": [
+              "shade_smooth"
+            ],
+            "required_events": [
+              "reference_resolved",
+              "deterministic_goal_tool_injected"
+            ],
+            "reference_target": {
+              "type": "object",
+              "name": "EvalMemorySphere_{run_id}"
+            },
+            "tool_argument_equals": [
+              {
+                "tool": "shade_smooth",
+                "path": "object_name",
+                "value": "EvalMemorySphere_{run_id}"
+              }
+            ],
+            "max_tool_repeats": {
+              "shade_smooth": 1
+            },
+            "max_render_executions": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "mixed_render",
+      "description": "Materials, camera, light, terminal render, and exact output filename.",
+      "turns": [
+        {
+          "prompt": "Create a UV sphere named EvalRenderSphere_{run_id} at ({ox}, {oy}, 18). Shade it smooth. Create a green material named EvalGreen_{run_id} and assign it to EvalRenderSphere_{run_id}. Create a camera named EvalCamera_{run_id} at ({ox}, {oy_minus_8}, 24), aim it at EvalRenderSphere_{run_id}, and make it active. Create a white AREA light named EvalLight_{run_id} at ({ox_plus_6}, {oy_minus_3}, 26) with energy 1200 and aim it at EvalRenderSphere_{run_id}. Set the render output to eval_{run_id}.png and render to file.",
+          "expect": {
+            "status": "success",
+            "verification_complete": true,
+            "required_tools": [
+              "create_uv_sphere",
+              "shade_smooth",
+              "create_material",
+              "assign_material",
+              "create_camera",
+              "aim_camera_at_object",
+              "set_active_camera",
+              "create_light",
+              "aim_light_at_object",
+              "set_render_output",
+              "render_scene"
+            ],
+            "required_goal_tools": [
+              "create_uv_sphere",
+              "shade_smooth",
+              "create_material",
+              "assign_material",
+              "create_camera",
+              "aim_camera_at_object",
+              "set_active_camera",
+              "create_light",
+              "aim_light_at_object",
+              "set_render_output",
+              "render_scene"
+            ],
+            "forbidden_discovered_tools": [
+              "add_bevel_modifier",
+              "add_subdivision_modifier",
+              "set_bevel_modifier",
+              "set_subdivision_modifier"
+            ],
+            "tool_result_equals": [
+              {
+                "tool": "render_scene",
+                "path": "saved_to_file",
+                "value": true
+              },
+              {
+                "tool": "render_scene",
+                "path": "file_verified",
+                "value": true
+              }
+            ],
+            "max_render_executions": 1,
+            "max_tool_repeats": {
+              "create_uv_sphere": 1,
+              "shade_smooth": 1,
+              "assign_material": 1,
+              "create_camera": 1,
+              "create_light": 1,
+              "render_scene": 1,
+              "aim_camera_at_object": 1,
+              "aim_light_at_object": 1
+            },
+            "max_llm_calls": 18,
+            "max_total_seconds": 300,
+            "required_events": [
+              "same_turn_reference_detected"
+            ],
+            "tool_argument_equals": [
+              {
+                "tool": "create_light",
+                "path": "energy",
+                "value": 1200
+              },
+              {
+                "tool": "aim_camera_at_object",
+                "path": "camera_name",
+                "value": "EvalCamera_{run_id}"
+              },
+              {
+                "tool": "aim_camera_at_object",
+                "path": "target_object_name",
+                "value": "EvalRenderSphere_{run_id}"
+              },
+              {
+                "tool": "aim_light_at_object",
+                "path": "light_name",
+                "value": "EvalLight_{run_id}"
+              },
+              {
+                "tool": "aim_light_at_object",
+                "path": "target_object_name",
+                "value": "EvalRenderSphere_{run_id}"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

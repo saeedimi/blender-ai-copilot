@@ -1,0 +1,30 @@
+{
+  "description": "Curated official Blender documentation used to build the local RAG index.",
+  "manual_sources": [
+    {"doc_id":"manual_modes","title":"Blender Manual — Object Modes","path":"editors/3dview/modes.html","topic":"modes"},
+    {"doc_id":"manual_transform","title":"Blender Manual — Object Transform","path":"scene_layout/object/editing/transform/index.html","topic":"transforms"},
+    {"doc_id":"manual_apply_transform","title":"Blender Manual — Apply Transform","path":"scene_layout/object/editing/apply.html","topic":"transforms"},
+    {"doc_id":"manual_mesh_primitives","title":"Blender Manual — Mesh Primitives","path":"modeling/meshes/primitives.html","topic":"mesh"},
+    {"doc_id":"manual_mesh_editing","title":"Blender Manual — Mesh Editing","path":"modeling/meshes/editing/index.html","topic":"mesh"},
+    {"doc_id":"manual_modifiers","title":"Blender Manual — Modifiers","path":"modeling/modifiers/introduction.html","topic":"modifiers"},
+    {"doc_id":"manual_materials","title":"Blender Manual — Materials","path":"render/materials/introduction.html","topic":"materials"},
+    {"doc_id":"manual_cameras","title":"Blender Manual — Cameras","path":"render/cameras.html","topic":"camera"},
+    {"doc_id":"manual_render","title":"Blender Manual — Rendering","path":"render/index.html","topic":"render"}
+  ],
+  "api_sources": [
+    {"doc_id":"api_object","title":"Blender Python API — bpy.types.Object","path":"bpy.types.Object.html","topic":"objects"},
+    {"doc_id":"api_mesh","title":"Blender Python API — bpy.types.Mesh","path":"bpy.types.Mesh.html","topic":"mesh"},
+    {"doc_id":"api_material","title":"Blender Python API — bpy.types.Material","path":"bpy.types.Material.html","topic":"materials"},
+    {"doc_id":"api_camera","title":"Blender Python API — bpy.types.Camera","path":"bpy.types.Camera.html","topic":"camera"},
+    {"doc_id":"api_light","title":"Blender Python API — bpy.types.Light","path":"bpy.types.Light.html","topic":"lighting"},
+    {"doc_id":"api_scene","title":"Blender Python API — bpy.types.Scene","path":"bpy.types.Scene.html","topic":"scene"},
+    {"doc_id":"api_modifier","title":"Blender Python API — bpy.types.Modifier","path":"bpy.types.Modifier.html","topic":"modifiers"},
+    {"doc_id":"api_context","title":"Blender Python API — bpy.context","path":"bpy.context.html","topic":"context"},
+    {"doc_id":"api_data","title":"Blender Python API — bpy.data","path":"bpy.data.html","topic":"data"},
+    {"doc_id":"api_object_ops","title":"Blender Python API — Object Operators","path":"bpy.ops.object.html","topic":"objects"},
+    {"doc_id":"api_mesh_ops","title":"Blender Python API — Mesh Operators","path":"bpy.ops.mesh.html","topic":"mesh"},
+    {"doc_id":"api_transform_ops","title":"Blender Python API — Transform Operators","path":"bpy.ops.transform.html","topic":"transforms"},
+    {"doc_id":"api_render_ops","title":"Blender Python API — Render Operators","path":"bpy.ops.render.html","topic":"render"},
+    {"doc_id":"api_bmesh","title":"Blender Python API — BMesh","path":"bmesh.html","topic":"mesh"}
+  ]
+}

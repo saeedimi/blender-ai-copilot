@@ -1,0 +1,106 @@
+{
+  "name": "render",
+  "description": "Mixed scene + render transaction regression.",
+  "cases": [
+    {
+      "id": "mixed_render",
+      "description": "Materials, camera, light, terminal render, and exact output filename.",
+      "turns": [
+        {
+          "prompt": "Create a UV sphere named EvalRenderSphere_{run_id} at ({ox}, {oy}, 18). Shade it smooth. Create a green material named EvalGreen_{run_id} and assign it to EvalRenderSphere_{run_id}. Create a camera named EvalCamera_{run_id} at ({ox}, {oy_minus_8}, 24), aim it at EvalRenderSphere_{run_id}, and make it active. Create a white AREA light named EvalLight_{run_id} at ({ox_plus_6}, {oy_minus_3}, 26) with energy 1200 and aim it at EvalRenderSphere_{run_id}. Set the render output to eval_{run_id}.png and render to file.",
+          "expect": {
+            "status": "success",
+            "verification_complete": true,
+            "required_tools": [
+              "create_uv_sphere",
+              "shade_smooth",
+              "create_material",
+              "assign_material",
+              "create_camera",
+              "aim_camera_at_object",
+              "set_active_camera",
+              "create_light",
+              "aim_light_at_object",
+              "set_render_output",
+              "render_scene"
+            ],
+            "required_goal_tools": [
+              "create_uv_sphere",
+              "shade_smooth",
+              "create_material",
+              "assign_material",
+              "create_camera",
+              "aim_camera_at_object",
+              "set_active_camera",
+              "create_light",
+              "aim_light_at_object",
+              "set_render_output",
+              "render_scene"
+            ],
+            "forbidden_discovered_tools": [
+              "add_bevel_modifier",
+              "add_subdivision_modifier",
+              "set_bevel_modifier",
+              "set_subdivision_modifier"
+            ],
+            "tool_result_equals": [
+              {
+                "tool": "render_scene",
+                "path": "saved_to_file",
+                "value": true
+              },
+              {
+                "tool": "render_scene",
+                "path": "file_verified",
+                "value": true
+              }
+            ],
+            "max_render_executions": 1,
+            "max_tool_repeats": {
+              "create_uv_sphere": 1,
+              "shade_smooth": 1,
+              "assign_material": 1,
+              "create_camera": 1,
+              "create_light": 1,
+              "render_scene": 1,
+              "aim_camera_at_object": 1,
+              "aim_light_at_object": 1
+            },
+            "max_llm_calls": 18,
+            "max_total_seconds": 300,
+            "required_events": [
+              "same_turn_reference_detected"
+            ],
+            "tool_argument_equals": [
+              {
+                "tool": "create_light",
+                "path": "energy",
+                "value": 1200
+              },
+              {
+                "tool": "aim_camera_at_object",
+                "path": "camera_name",
+                "value": "EvalCamera_{run_id}"
+              },
+              {
+                "tool": "aim_camera_at_object",
+                "path": "target_object_name",
+                "value": "EvalRenderSphere_{run_id}"
+              },
+              {
+                "tool": "aim_light_at_object",
+                "path": "light_name",
+                "value": "EvalLight_{run_id}"
+              },
+              {
+                "tool": "aim_light_at_object",
+                "path": "target_object_name",
+                "value": "EvalRenderSphere_{run_id}"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

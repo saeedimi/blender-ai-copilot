@@ -1,0 +1,18 @@
+schema_version = "0.6.1"
+
+id = "blender_ai_copilot"
+version = "0.4.1"
+name = "Blender AI Copilot"
+tagline = "Local Blender AI copilot with structured referential memory and verified tools"
+maintainer = "Blender AI Copilot Developer"
+type = "add-on"
+
+blender_version_min = "4.2.0"
+
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+
+[permissions]
+network = "Connect to the local copilot backend"
+files = "Exchange controlled command files with the backend"

@@ -1,0 +1,58 @@
+[
+  {
+    "doc_id": "builtin_object_transform",
+    "title": "Blender Object Transforms",
+    "source": "builtin://blender/object-transforms",
+    "topic": "objects",
+    "text": "Blender objects have location, rotation, and scale transforms. In Python, an object's location can be read or changed through object.location. Object rotation can be represented with Euler angles through object.rotation_euler. Object scale can be changed through object.scale. Object transforms affect the object as a whole and differ from editing individual mesh vertices."
+  },
+  {
+    "doc_id": "builtin_modes",
+    "title": "Blender Object Mode and Edit Mode",
+    "source": "builtin://blender/modes",
+    "topic": "modes",
+    "text": "Object Mode is commonly used to transform whole objects, create objects, and delete objects. Edit Mode is used to edit mesh components such as vertices, edges, and faces. Some bpy operators require a specific mode and context, while direct data API access is often less context dependent."
+  },
+  {
+    "doc_id": "builtin_create_objects",
+    "title": "Creating Objects with bpy",
+    "source": "builtin://blender/create-objects",
+    "topic": "objects",
+    "text": "Mesh primitives can be added with Blender operators such as bpy.ops.mesh.primitive_cube_add. After creation, the active object is commonly available through bpy.context.active_object. Reusable agent tools should wrap Blender operations in small validated functions rather than allowing unrestricted arbitrary Python execution."
+  },
+  {
+    "doc_id": "builtin_materials",
+    "title": "Blender Materials",
+    "source": "builtin://blender/materials",
+    "topic": "materials",
+    "text": "Materials control visual surface properties. A material can be created through bpy.data.materials.new. Materials can use nodes to control properties such as base color, roughness, metallic response, and emission. Mesh objects can have material slots that reference materials."
+  },
+  {
+    "doc_id": "builtin_camera",
+    "title": "Blender Cameras",
+    "source": "builtin://blender/cameras",
+    "topic": "camera",
+    "text": "A Blender scene can contain multiple camera objects, but the active render camera is stored in scene.camera. Camera position is controlled with object transforms. A common automation pattern is to compute a direction vector and derive a rotation that points a camera at a target object."
+  },
+  {
+    "doc_id": "builtin_render",
+    "title": "Rendering in Blender",
+    "source": "builtin://blender/rendering",
+    "topic": "render",
+    "text": "Rendering converts a Blender scene into an image or animation. Render engine, resolution, output format, camera, lighting, materials, and world settings affect the result. Automation can modify scene.render settings and invoke a render operation after verifying that an active camera exists."
+  },
+  {
+    "doc_id": "builtin_mesh_edit",
+    "title": "Mesh Editing Concepts",
+    "source": "builtin://blender/mesh-editing",
+    "topic": "mesh",
+    "text": "Mesh editing changes vertices, edges, or faces rather than the whole object's transform. Common operations include extrusion, beveling, subdivision, inset, loop cuts, and merging. Context-sensitive mesh operators should be wrapped with explicit setup and validation."
+  },
+  {
+    "doc_id": "builtin_safety",
+    "title": "Safe Blender Automation",
+    "source": "builtin://blender/safety",
+    "topic": "agent-safety",
+    "text": "An AI agent should not receive unrestricted arbitrary Python execution inside Blender. Safer automation exposes semantic tools, validates tool arguments, can require human approval for destructive operations, and verifies actual scene state after mutations."
+  }
+]

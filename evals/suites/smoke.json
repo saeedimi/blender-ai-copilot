@@ -1,0 +1,133 @@
+{
+  "name": "smoke",
+  "description": "Fast core regression suite. New object coordinates are run-specific to avoid overlap.",
+  "cases": [
+    {
+      "id": "object_create",
+      "description": "Object creation + deterministic verification.",
+      "turns": [
+        {
+          "prompt": "Create a cube named EvalCube_{run_id} at ({ox}, {oy}, 1).",
+          "expect": {
+            "status": "success",
+            "verification_complete": true,
+            "required_tools": [
+              "create_cube"
+            ],
+            "required_goal_tools": [
+              "create_cube"
+            ],
+            "required_discovered_tools": [
+              "create_cube"
+            ],
+            "forbidden_tools": [
+              "delete_object",
+              "render_scene"
+            ],
+            "max_tool_repeats": {
+              "create_cube": 1
+            },
+            "max_render_executions": 0,
+            "max_llm_calls": 4,
+            "max_total_seconds": 90
+          }
+        }
+      ]
+    },
+    {
+      "id": "mesh_direction_and_semantics",
+      "description": "Inset + upward translation + taper, including controller direction normalization.",
+      "turns": [
+        {
+          "prompt": "Create a cube named EvalTower_{run_id} at ({ox}, {oy}, 6). Inset its top face by 0.12, move the top face upward by 1.5, and taper the top to 0.7 on X and 0.7 on Y.",
+          "expect": {
+            "status": "success",
+            "verification_complete": true,
+            "required_tools": [
+              "create_cube",
+              "inset_top_face",
+              "translate_top_face",
+              "scale_top_face"
+            ],
+            "required_goal_tools": [
+              "create_cube",
+              "inset_top_face",
+              "translate_top_face",
+              "scale_top_face"
+            ],
+            "required_discovered_tools": [
+              "create_cube",
+              "inset_top_face",
+              "translate_top_face",
+              "scale_top_face"
+            ],
+            "required_events": [
+              "semantic_arguments_normalized"
+            ],
+            "tool_argument_equals": [
+              {
+                "tool": "translate_top_face",
+                "path": "z_offset",
+                "value": 1.5
+              },
+              {
+                "tool": "translate_top_face",
+                "path": "y_offset",
+                "value": 0.0
+              },
+              {
+                "tool": "scale_top_face",
+                "path": "x_factor",
+                "value": 0.7
+              }
+            ],
+            "max_tool_repeats": {
+              "inset_top_face": 1,
+              "translate_top_face": 1,
+              "scale_top_face": 1
+            },
+            "max_render_executions": 0,
+            "max_llm_calls": 8,
+            "max_total_seconds": 180
+          }
+        }
+      ]
+    },
+    {
+      "id": "read_only_materials",
+      "description": "Read-only discovery must not expose mutators.",
+      "turns": [
+        {
+          "prompt": "What materials are currently in the scene?",
+          "expect": {
+            "status": "success",
+            "verification_complete": true,
+            "required_tools": [
+              "get_materials"
+            ],
+            "required_discovered_tools": [
+              "get_materials"
+            ],
+            "forbidden_discovered_tools": [
+              "create_material",
+              "set_material_color",
+              "assign_material"
+            ],
+            "forbidden_tools": [
+              "create_material",
+              "set_material_color",
+              "assign_material",
+              "render_scene"
+            ],
+            "allowed_discovered_tools": [
+              "get_materials"
+            ],
+            "max_render_executions": 0,
+            "max_llm_calls": 3,
+            "max_total_seconds": 60
+          }
+        }
+      ]
+    }
+  ]
+}

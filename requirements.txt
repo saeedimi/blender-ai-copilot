@@ -1,0 +1,6 @@
+requests
+numpy
+faiss-cpu
+rank-bm25
+sentence-transformers
+beautifulsoup4
