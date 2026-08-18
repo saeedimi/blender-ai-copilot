@@ -1,13 +1,27 @@
 # Blender AI Copilot
 
-A local AI agent for controlling Blender through natural language.
+A local AI agent that lets you control **Blender with natural language**.
 
-The project combines a local LLM, semantic Blender tools, retrieval-augmented
-generation (RAG), structured conversation memory, human-in-the-loop safety,
-deterministic verification, and an evaluation harness.
+Blender AI Copilot combines a local LLM, semantic Blender tools, retrieval-augmented generation (RAG), structured conversation memory, human-in-the-loop safety, deterministic verification, and an evaluation harness.
 
-> Portfolio / learning project. It is intentionally not positioned as a
-> production-ready Blender automation system.
+> **Portfolio / learning project.** This repository demonstrates agentic AI engineering patterns and is not intended as production-grade Blender automation.
+
+---
+
+## Demo
+
+![Blender AI Copilot Demo](assets/demo.gif)
+
+Example interaction:
+
+```text
+Create a red cube, a blue sphere, and a green cylinder.
+Place them side by side and shade the curved objects smooth.
+```
+
+The Copilot translates the request into semantic Blender operations, executes them through the Blender extension, verifies the resulting state, and reports the result in the chat panel.
+
+---
 
 ## What it can do
 
@@ -15,23 +29,28 @@ deterministic verification, and an evaluation harness.
 - Inspect scene objects, materials, cameras, lights, and render settings
 - Create and assign materials
 - Add and configure modifiers
-- Perform selected mesh operations
-- Create, position, aim, and activate cameras
+- Perform selected mesh-editing operations
+- Create, move, aim, and activate cameras
 - Create and configure lights
 - Configure render settings and render to file
-- Resolve follow-up references such as `Make it blue`
-- Use Blender documentation through local RAG
-- Require approval for high-risk operations
+- Understand follow-up references such as `Make it blue`
+- Answer Blender questions using local RAG over Blender documentation
+- Require approval for higher-risk operations
 - Verify Blender state after semantic tool execution
 - Run regression/evaluation suites against the live backend
 
-## Architecture
+---
+
+## How it works
 
 ```text
+User
+ |
+ v
 Blender Copilot UI
-        |
-        | HTTP
-        v
+ |
+ | HTTP
+ v
 +---------------------------+
 | Agent / Controller        |
 |                           |
@@ -39,7 +58,7 @@ Blender Copilot UI
 | - goal tracking           |
 | - structured memory       |
 | - safety / validation     |
-| - tool gating             |
+| - dynamic tool gating     |
 | - deterministic checks    |
 | - verification            |
 +------------+--------------+
@@ -56,56 +75,75 @@ Blender Copilot UI
                bpy / bmesh
 ```
 
-The LLM proposes semantic actions. The controller owns validation, safety,
-reference handling, verification, retry behavior, and task completion logic.
-Arbitrary Python execution is not exposed to the model.
+The **LLM proposes semantic actions**. The controller owns validation, safety, reference handling, argument normalization, verification, retry behavior, and task-completion logic.
 
-## Repository layout
+The model is **not given arbitrary Python execution**.
+
+---
+
+## Repository structure
 
 ```text
 blender-ai-copilot/
-├── blender_extension/   # Blender UI + semantic tool execution
-├── src/                 # backend agent, tools, bridge, router, RAG
-├── evals/               # live evaluation harness + suites
+├── blender_extension/       # Blender UI + semantic tool execution
+├── src/                     # backend agent, controller, bridge, router, RAG
+├── evals/                   # live evaluation harness + suites
+│
 ├── rag/
 │   ├── source_manifest.json
 │   ├── builtin_corpus.json
 │   └── README.md
+│
 ├── scripts/
 │   ├── build_rag_index.py
 │   └── package_blender_extension.py
+│
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── EVALUATION.md
 │   ├── INSTALLATION.md
 │   └── MODELS.md
+│
 ├── requirements.txt
 ├── .gitignore
-└── run_evals.sh
+├── run_evals.sh
+└── README.md
 ```
+
+---
+
+# Installation
 
 ## Requirements
 
-- Blender
-- Python environment for the backend
-- Ollama running locally
-- A local chat model (the current default is `qwen3:4b-instruct`)
+You need:
 
-Python packages used by the backend are listed in `requirements.txt`.
+- **Blender 4.2+**
+- **Python 3**
+- **Ollama**
+- A local Ollama model that supports reliable tool/function calling
+- Enough RAM/VRAM for the model you select
 
-Blender supplies `bpy`, `bmesh`, and `mathutils`; do not install those into the
-backend environment from this requirements file.
+The default model used during development is:
 
-## Quick start
+```text
+qwen3:4b-instruct
+```
+
+The model weights are not stored in this repository.
+
+---
+
+## Option A — Recommended: clone the backend + install the prebuilt Blender extension
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/blender-ai-copilot.git
+git clone https://github.com/saeedimi/blender-ai-copilot.git
 cd blender-ai-copilot
 ```
 
-### 2. Install backend dependencies
+### 2. Create a Python environment
 
 macOS / Linux:
 
@@ -123,54 +161,29 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 3. Install Ollama and choose a model
+### 3. Install Ollama and pull a model
 
-The default model is:
-
-```text
-qwen3:4b-instruct
-```
-
-Pull it with:
+For the default model:
 
 ```bash
 ollama pull qwen3:4b-instruct
 ```
 
-You are **not locked to this model**. Any Ollama model that supports reliable
-tool/function calling can be selected with `--model`.
-
-Example with a stronger model:
-
-```bash
-ollama pull qwen3:8b
-
-python -m src.agent \
-  --project-root . \
-  --host 127.0.0.1 \
-  --port 8765 \
-  --ollama-url http://127.0.0.1:11434 \
-  --model qwen3:8b
-```
-
-See [`docs/MODELS.md`](docs/MODELS.md).
+You may use another compatible Ollama model. See [Changing the model](#changing-the-model).
 
 ### 4. Build the local RAG index
-
-The generated documentation index is intentionally not committed to GitHub. Build it locally:
 
 ```bash
 python scripts/build_rag_index.py
 ```
 
-This fetches the curated official Blender Manual/Python API pages and creates the local
-FAISS/chunk artifacts expected by the backend. For an offline installation smoke test:
+This downloads the curated Blender documentation pages listed in the repository, chunks them, creates embeddings, and builds the local FAISS index used by the backend.
+
+For a small offline smoke test:
 
 ```bash
 python scripts/build_rag_index.py --builtin-only
 ```
-
-See [`rag/README.md`](rag/README.md) for version pinning and rebuild rules.
 
 ### 5. Start the backend
 
@@ -183,9 +196,56 @@ python -m src.agent \
   --model qwen3:4b-instruct
 ```
 
-Leave this terminal running while Blender is open.
+Keep this terminal running while using Blender.
 
-### 6. Build the Blender extension package
+### 6. Download the Blender extension
+
+Download the installable extension ZIP from:
+
+**[GitHub Releases](https://github.com/saeedimi/blender-ai-copilot/releases/latest)**
+
+Do not unzip the extension package before installing it in Blender.
+
+### 7. Install the extension in Blender
+
+In Blender:
+
+```text
+Edit
+→ Preferences
+→ Add-ons / Extensions
+→ Install from Disk
+→ select the downloaded Blender AI Copilot ZIP
+→ enable Blender AI Copilot
+```
+
+Then open a **3D Viewport** and press:
+
+```text
+N
+```
+
+Open the:
+
+```text
+Copilot
+```
+
+tab.
+
+The default backend URL is:
+
+```text
+http://127.0.0.1:8765
+```
+
+Click **Check** before sending your first request.
+
+---
+
+## Option B — Build the Blender extension yourself
+
+If you prefer to build the extension from the repository source:
 
 ```bash
 python scripts/package_blender_extension.py
@@ -197,39 +257,123 @@ This creates:
 dist/blender_ai_copilot_extension.zip
 ```
 
-### 7. Install it in Blender
-
-The extension requires Blender 4.2+.
-
-In Blender:
+Install that ZIP in Blender using:
 
 ```text
-Edit -> Preferences -> Add-ons / Extensions
--> Install from Disk
--> select dist/blender_ai_copilot_extension.zip
--> enable Blender AI Copilot
+Edit
+→ Preferences
+→ Add-ons / Extensions
+→ Install from Disk
 ```
 
-Then open a 3D Viewport:
+---
+
+# How to use the Copilot
+
+After installation:
+
+1. Start Ollama.
+2. Start the Blender AI Copilot backend.
+3. Open Blender.
+4. Open `N → Copilot`.
+5. Confirm the backend URL is `http://127.0.0.1:8765`.
+6. Click **Check**.
+7. Type a natural-language request in the Copilot panel.
+8. Click **Send**.
+9. If an operation is classified as higher risk, review and approve it before execution.
+10. Continue the conversation with follow-up instructions.
+
+### Simple example
 
 ```text
-N -> Copilot
+Create a UV sphere named Product at (0, 0, 1).
 ```
 
-The default backend URL is:
+Then:
 
 ```text
-http://127.0.0.1:8765
+Make it blue.
 ```
 
-Click **Check** in the Copilot panel before using the agent.
+Then:
 
-For a full walkthrough and troubleshooting, see
-[`docs/INSTALLATION.md`](docs/INSTALLATION.md).
+```text
+Shade it smooth.
+```
 
-### Using another Ollama server
+The controller maintains structured referential memory, so `it` can resolve to the previously created object.
 
-You can point the backend at Ollama on another machine:
+### Multi-step example
+
+```text
+Create a UV sphere named Product at (0, 0, 1).
+Shade it smooth, create a blue material and assign it to Product.
+Create a camera at (0, -8, 4), aim it at Product, and make it active.
+Create a white AREA light at (4, -3, 6) with energy 1000 and aim it at Product.
+Set the render output to product.png and render to file.
+```
+
+### Multi-object example
+
+```text
+Create a red cube named RedCube at (-3, 0, 1),
+a blue UV sphere named BlueSphere at (0, 0, 1),
+and a green cylinder named GreenCylinder at (3, 0, 1).
+Shade the sphere and cylinder smooth.
+```
+
+### Blender knowledge example
+
+```text
+What is the difference between a Bevel modifier and a Subdivision Surface modifier?
+```
+
+For Blender knowledge questions, the Copilot can retrieve relevant local documentation through the RAG pipeline before generating the answer.
+
+---
+
+# Changing the model
+
+The Copilot is **not tied to one LLM**.
+
+The backend accepts a model name through:
+
+```text
+--model
+```
+
+For example:
+
+```bash
+ollama pull qwen3:8b
+```
+
+Then:
+
+```bash
+python -m src.agent \
+  --project-root . \
+  --host 127.0.0.1 \
+  --port 8765 \
+  --ollama-url http://127.0.0.1:11434 \
+  --model qwen3:8b
+```
+
+A stronger model may improve:
+
+- long-request decomposition
+- semantic tool selection
+- argument extraction
+- planning consistency
+- natural-language responses
+
+A larger model may also require more RAM/VRAM and may be slower.
+
+The controller remains responsible for safety, verification, approvals, reference handling, and render replay protection regardless of the selected model.
+
+### Using Ollama on another machine
+
+You can also point the backend to a remote Ollama server:
 
 ```bash
 python -m src.agent \
@@ -238,54 +382,66 @@ python -m src.agent \
   --model YOUR_MODEL_NAME
 ```
 
-The current backend speaks Ollama's `/api/chat` tool-calling format directly.
-Other model providers would require a small provider adapter.
+The Blender extension talks to the Copilot backend. It does not communicate directly with Ollama.
 
-## Example requests
+The current backend uses Ollama's `/api/chat` tool-calling format. Other providers such as OpenAI, Anthropic, or Google would require a provider adapter.
 
-```text
-Create a UV sphere named Product at (0, 0, 1).
+See [`docs/MODELS.md`](docs/MODELS.md) for more detail.
 
-Make it blue.
+---
 
-Shade it smooth.
+# RAG
 
-Create a camera named ProductCamera at (0, -8, 4),
-aim it at Product, and make it active.
+The project includes local Blender-documentation retrieval using:
 
-Create a white AREA light named KeyLight at (4, -3, 6)
-with energy 1000 and aim it at Product.
+- BM25
+- FAISS
+- sentence-transformer embeddings
+- cross-encoder reranking
 
-Set the render output to product.png and render to file.
-```
-
-## Safety design
-
-The model does not receive arbitrary Python execution.
-
-Instead, it chooses from semantic tools such as:
+The retrieval pipeline is conceptually:
 
 ```text
-create_uv_sphere
-assign_material
-shade_smooth
-aim_camera_at_object
-aim_light_at_object
-set_render_output
-render_scene
+Question
+   ↓
+BM25 + FAISS retrieval
+   ↓
+Embedding similarity
+   ↓
+Cross-encoder reranking
+   ↓
+Relevant Blender documentation
+   ↓
+Selected LLM
+   ↓
+Grounded answer
 ```
 
-The controller classifies operations by domain and behavior, validates tool
-arguments, requests approval for higher-risk operations, and verifies resulting
-Blender state.
+The GitHub repository stores:
 
-For non-idempotent terminal actions such as rendering, a timeout is treated as
-an unknown execution state rather than blindly replaying the action.
+```text
+rag/source_manifest.json
+rag/builtin_corpus.json
+scripts/build_rag_index.py
+```
 
-## Conversation memory
+It does **not** store copied documentation, generated vectors, or ML model weights.
 
-The Blender UI keeps the visible chat history, while the local model receives a
-bounded context.
+Build the index locally with:
+
+```bash
+python scripts/build_rag_index.py
+```
+
+Changing the **main Ollama LLM** does not require rebuilding the RAG index.
+
+Changing the **embedding model** does require rebuilding the FAISS index.
+
+---
+
+# Conversation memory
+
+The Blender UI keeps the visible chat history while the local model receives a bounded context.
 
 The backend also maintains structured referential memory for entities such as:
 
@@ -297,7 +453,7 @@ last_light
 last_render_output
 ```
 
-This supports follow-up requests like:
+This supports interactions such as:
 
 ```text
 Create a sphere named Product.
@@ -305,60 +461,151 @@ Make it blue.
 Shade it smooth.
 ```
 
-without sending the entire conversation to the local model.
+without sending the entire visible chat transcript to the local model.
 
-## RAG
+---
 
-The project includes local Blender-documentation retrieval using:
+# Safety and verification
 
-- BM25
-- FAISS
-- sentence-transformer embeddings
-- cross-encoder reranking
+The Copilot exposes semantic Blender tools instead of arbitrary Python execution.
 
-This is used for Blender knowledge questions without giving the model unrestricted
-internet access. The GitHub repository stores the source manifest and index-builder code,
-not copied documentation or generated vectors. Build the index with
-`python scripts/build_rag_index.py`. Changing the main Ollama LLM does **not** require a
-RAG rebuild; changing the embedding model does.
+Examples include:
 
-## Evaluation harness
-
-The evaluation harness calls the same backend `/chat` and `/approve` API used by
-the Blender UI.
-
-Run the full suite:
-
-```bash
-python -m evals.runner   --suite evals/suites/full.json   --backend http://127.0.0.1:8765   --auto-approve
+```text
+create_uv_sphere
+create_material
+assign_material
+shade_smooth
+aim_camera_at_object
+aim_light_at_object
+set_render_output
+render_scene
 ```
 
-The harness measures, among other things:
+The controller can:
+
+- restrict which tools are visible for a request
+- validate tool arguments
+- classify operations by risk
+- require user approval for higher-risk actions
+- normalize deterministic semantics
+- verify Blender state after execution
+- prevent unsafe blind retries of non-idempotent actions
+
+For terminal side effects such as rendering, a timeout is treated as an **unknown execution state** rather than automatically replaying the operation.
+
+---
+
+# Evaluation harness
+
+The repository includes a live evaluation harness that exercises the same backend API used by the Blender UI.
+
+Run the core suite:
+
+```bash
+python -m evals.runner \
+  --suite evals/suites/full.json \
+  --backend http://127.0.0.1:8765 \
+  --auto-approve
+```
+
+The harness measures:
 
 - task and turn success
 - semantic false-success
 - goal completion
-- tool execution
+- required/forbidden tool use
 - verification
 - reference resolution
-- tool repetition
+- repeated mutations
 - render-at-most-once behavior
-- latency and LLM calls
+- latency
+- LLM calls
+- tool steps
+- discovery precision and recall
 
-See `docs/EVALUATION.md`.
+See [`docs/EVALUATION.md`](docs/EVALUATION.md).
 
-## Current status
+---
 
-This repository is frozen as a learning/portfolio milestone.
+# Current status
 
-It demonstrates the architecture and engineering patterns rather than aiming
-for complete Blender coverage or production reliability. Known edge cases and
-the latest evaluation snapshot are documented in `docs/EVALUATION.md`.
+This repository is frozen as a **learning and portfolio milestone**.
 
-Model weights, generated indexes, logs, renders, and local environments are not included in the repository. See .gitignore and the installation guide for details.
+It demonstrates:
 
-## License
+```text
+Local LLM agents
+Semantic tool calling
+RAG
+Structured conversational memory
+Reference resolution
+Human-in-the-loop safety
+Deterministic verification
+Dynamic tool gating
+Agent evaluation
+Observability
+Blender integration
+```
+
+The goal is to demonstrate the architecture and engineering patterns rather than provide complete Blender coverage or production-level reliability.
+
+Known limitations and evaluation results are documented in [`docs/EVALUATION.md`](docs/EVALUATION.md).
+
+---
+
+# Troubleshooting
+
+### Blender cannot reach the backend
+
+Make sure the backend is still running and that the Copilot panel points to:
+
+```text
+http://127.0.0.1:8765
+```
+
+Then click **Check**.
+
+### Ollama cannot be reached
+
+Make sure Ollama is running and that the `--ollama-url` value is correct.
+
+### The model answers but does not operate Blender
+
+The selected model must support reliable **tool/function calling** through Ollama. A model that only generates ordinary text is not sufficient.
+
+### Blender tool calls time out
+
+Keep Blender open and click **Check** in the Copilot panel before sending requests.
+
+### RAG does not initialize
+
+Build the local index:
+
+```bash
+python scripts/build_rag_index.py
+```
+
+If you changed the embedding model, rebuild the index.
+
+For additional setup details, see [`docs/INSTALLATION.md`](docs/INSTALLATION.md).
+
+---
+
+# Release
+
+Installable Blender extension packages are available from:
+
+**[GitHub Releases](https://github.com/saeedimi/blender-ai-copilot/releases)**
+
+Developers can also build the extension locally with:
+
+```bash
+python scripts/package_blender_extension.py
+```
+
+---
+
+# License
 
 Code in this repository is released under the [MIT License](LICENSE).
-
-Original GAIA questions and attachments remain subject to their original terms.
