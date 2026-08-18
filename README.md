@@ -10,7 +10,7 @@ Blender AI Copilot combines a local LLM, semantic Blender tools, retrieval-augme
 
 ## Demo
 
-![Blender AI Copilot Demo](assets/demo.gif)
+![Blender AI Copilot Demo](assets/Demo.gif)
 
 Example interaction:
 
