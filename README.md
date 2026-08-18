@@ -355,20 +355,7 @@ It demonstrates the architecture and engineering patterns rather than aiming
 for complete Blender coverage or production reliability. Known edge cases and
 the latest evaluation snapshot are documented in `docs/EVALUATION.md`.
 
-## What should not be committed
-
-Do not commit:
-
-- Ollama model weights
-- sentence-transformer model caches
-- Python virtual environments
-- generated renders
-- trace logs
-- generated evaluation reports
-- bridge command/result runtime files
-- local FAISS/index caches
-
-These are intentionally covered by `.gitignore`.
+Model weights, generated indexes, logs, renders, and local environments are not included in the repository. See .gitignore and the installation guide for details.
 
 ## License
 
