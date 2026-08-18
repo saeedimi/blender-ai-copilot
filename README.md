@@ -372,5 +372,6 @@ These are intentionally covered by `.gitignore`.
 
 ## License
 
-No license is included by default. Add the license you want before publishing
-the repository as reusable open-source software.
+Code in this repository is released under the [MIT License](LICENSE).
+
+Original GAIA questions and attachments remain subject to their original terms.
