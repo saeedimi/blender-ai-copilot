@@ -1,10 +1,53 @@
 # Blender AI Copilot
 
-A local AI agent that lets you control **Blender with natural language**.
+A local **agentic AI copilot for Blender** that translates natural-language instructions into safe, structured, and verifiable actions inside a real 3D application.
 
-Blender AI Copilot combines a local LLM, semantic Blender tools, retrieval-augmented generation (RAG), structured conversation memory, human-in-the-loop safety, deterministic verification, and an evaluation harness.
+## What is Blender?
+
+[Blender](https://www.blender.org/) is a free and open-source 3D creation suite used for modeling, animation, rendering, simulation, and other 3D workflows. Many Blender tasks require users to navigate complex menus, manage scene state, and execute multiple dependent operations in the correct order.
+
+**Blender AI Copilot** explores how an AI agent can make that workflow more conversational. Instead of manually performing every operation, a user can describe a goal in natural language and the Copilot can interpret the request, select appropriate Blender tools, execute the actions, verify the resulting scene state, and continue the interaction through follow-up instructions.
+
+For example:
+
+```text
+Create a red cube, a blue sphere, and a green cylinder.
+Place them side by side and shade the curved objects smooth.
+```
+
+The goal of the project is not simply to connect an LLM to Blender. It is to build an **end-to-end agent architecture** around a stateful external application where actions can have real side effects and therefore need validation, memory, safety controls, and verification.
 
 > **Portfolio / learning project.** This repository demonstrates agentic AI engineering patterns and is not intended as production-grade Blender automation.
+
+---
+
+## What I built
+
+The project implements an end-to-end local agent system with the following components:
+
+- **Local LLM planning and tool calling** using Ollama-compatible models
+- **Semantic Blender tools** for structured operations instead of unrestricted Python execution
+- **Agent/controller architecture** for multi-step task execution and goal tracking
+- **Hybrid RAG** over Blender documentation using BM25, FAISS, embeddings, and cross-encoder reranking
+- **Structured conversational memory** for follow-up references such as `Make it blue`
+- **Human-in-the-loop approval** for higher-risk operations
+- **Dynamic tool gating and argument validation** before execution
+- **Deterministic state verification** after Blender actions
+- **Retry and replay protection** for non-idempotent operations such as rendering
+- **Live evaluation harness** for task completion, tool use, reference resolution, repeated mutations, latency, and other agent behaviors
+- **Blender extension + local backend integration** so the same agent can be used directly from the Blender UI
+
+Together, these components make Blender a practical test environment for broader agentic AI problems: planning, tool selection, state tracking, external-system interaction, safety, verification, and evaluation.
+
+---
+
+## Why this is an agentic AI project
+
+A simple chatbot can generate instructions about how to use Blender. This project instead gives the model a constrained set of tools and places a deterministic controller between the model and Blender.
+
+The model proposes **what should happen**. The controller decides **whether and how it can happen safely**, executes the corresponding semantic operations, checks the resulting state, and determines whether the task is complete.
+
+That separation is important because Blender is stateful: creating, editing, moving, rendering, or deleting objects changes the environment. A useful agent therefore needs more than text generation—it needs memory, tool-use constraints, verification, failure handling, and protection against unsafe repeated side effects.
 
 ---
 
@@ -75,9 +118,9 @@ Blender Copilot UI
                bpy / bmesh
 ```
 
-The **LLM proposes semantic actions**. The controller owns validation, safety, reference handling, argument normalization, verification, retry behavior, and task-completion logic.
+The **LLM proposes semantic actions**, but it does not directly control Blender. The controller owns validation, safety, reference handling, argument normalization, execution policy, verification, retry behavior, and task-completion logic.
 
-The model is **not given arbitrary Python execution**.
+This design keeps the model focused on interpretation and planning while deterministic code governs side effects. The model is **not given arbitrary Python execution**.
 
 ---
 
@@ -532,23 +575,25 @@ See [`docs/EVALUATION.md`](docs/EVALUATION.md).
 
 This repository is frozen as a **learning and portfolio milestone**.
 
-It demonstrates:
+The project uses Blender as a concrete environment for demonstrating reusable agentic AI engineering patterns:
 
 ```text
 Local LLM agents
 Semantic tool calling
+Multi-step task execution
 RAG
 Structured conversational memory
 Reference resolution
 Human-in-the-loop safety
 Deterministic verification
 Dynamic tool gating
+Failure and replay handling
 Agent evaluation
 Observability
-Blender integration
+External-application integration
 ```
 
-The goal is to demonstrate the architecture and engineering patterns rather than provide complete Blender coverage or production-level reliability.
+The goal is to demonstrate how an AI agent can interact with a stateful application through controlled tools, memory, safety checks, and verification rather than to provide complete Blender coverage or production-level reliability.
 
 Known limitations and evaluation results are documented in [`docs/EVALUATION.md`](docs/EVALUATION.md).
 
