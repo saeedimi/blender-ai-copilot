@@ -2,6 +2,23 @@
 
 A local **agentic AI copilot for Blender** that translates natural-language instructions into safe, structured, and verifiable actions inside a real 3D application.
 
+
+## Demo
+
+![Blender AI Copilot Demo](assets/Demo.gif)
+
+Example interaction:
+
+```text
+Create a red cube, a blue sphere, and a green cylinder.
+Place them side by side and shade the curved objects smooth.
+```
+
+The Copilot translates the request into semantic Blender operations, executes them through the Blender extension, verifies the resulting state, and reports the result in the chat panel.
+
+---
+
+
 ## What is Blender?
 
 [Blender](https://www.blender.org/) is a free and open-source 3D creation suite used for modeling, animation, rendering, simulation, and other 3D workflows. Many Blender tasks require users to navigate complex menus, manage scene state, and execute multiple dependent operations in the correct order.
@@ -51,20 +68,6 @@ That separation is important because Blender is stateful: creating, editing, mov
 
 ---
 
-## Demo
-
-![Blender AI Copilot Demo](assets/Demo.gif)
-
-Example interaction:
-
-```text
-Create a red cube, a blue sphere, and a green cylinder.
-Place them side by side and shade the curved objects smooth.
-```
-
-The Copilot translates the request into semantic Blender operations, executes them through the Blender extension, verifies the resulting state, and reports the result in the chat panel.
-
----
 
 ## What it can do
 
